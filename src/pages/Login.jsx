@@ -13,13 +13,13 @@ export default function Login({ setToken }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
       if (isLogin) {
         const formData = new URLSearchParams();
         formData.append('username', email);
         formData.append('password', password);
-        
+
         const response = await axios.post(`${API_URL}/login`, formData, {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
@@ -35,47 +35,52 @@ export default function Login({ setToken }) {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="glass" style={{ padding: '3rem', width: '400px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-          <BookOpen size={36} color="var(--primary)" />
-          <h2>IELTS AI</h2>
+    <div className="auth-screen">
+      <div className="auth-card surface">
+        <div className="brand">
+          <div className="brand-mark">
+            <BookOpen size={20} />
+          </div>
+          <div className="brand-text">
+            <h2>IELTS AI</h2>
+          </div>
         </div>
-        
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+
+        <p className="auth-subtitle">
           {isLogin ? 'Sign in to continue' : 'Create an account'}
         </p>
 
-        {error && <div style={{ color: error.includes('successful') ? 'var(--success)' : 'var(--danger)', textAlign: 'center', fontSize: '0.9rem' }}>{error}</div>}
+        {error && (
+          <div className={`auth-message ${error.includes('successful') ? 'success' : 'error'}`}>
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <input 
-            type="email" 
-            placeholder="Email address" 
-            value={email} 
-            onChange={e => setEmail(e.target.value)} 
-            required 
+        <form onSubmit={handleSubmit} className="auth-form">
+          <input
+            type="email"
+            placeholder="Email address"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
           />
-          <input 
-            type="password" 
-            placeholder="Password" 
-            value={password} 
-            onChange={e => setPassword(e.target.value)} 
-            required 
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
           />
-          <button type="submit" className="btn" style={{ marginTop: '1rem' }}>
+          <button type="submit" className="btn" style={{ marginTop: '0.5rem' }}>
             {isLogin ? 'Login' : 'Register'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', fontSize: '0.9rem' }}>
+        <p className="auth-switch">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span 
-            onClick={() => {setIsLogin(!isLogin); setError('');}} 
-            style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 500 }}
-          >
+          <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); }}>
             {isLogin ? 'Sign up' : 'Sign in'}
-          </span>
+          </button>
         </p>
       </div>
     </div>

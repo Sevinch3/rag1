@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import { BookOpen, Upload, MessageSquare, LogOut } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -23,29 +23,34 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        <aside className="sidebar glass">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
-            <BookOpen size={28} color="var(--primary)" />
-            <h2 style={{ fontSize: '1.25rem' }}>IELTS AI</h2>
+        <aside className="sidebar">
+          <div className="brand">
+            <div className="brand-mark">
+              <BookOpen size={18} />
+            </div>
+            <div className="brand-text">
+              <h2>IELTS AI</h2>
+              <span>READING ASSISTANT</span>
+            </div>
           </div>
-          
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-            <Link to="/" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
-              <MessageSquare size={18} /> Chat
-            </Link>
-            <Link to="/upload" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>
-              <Upload size={18} /> Documents
-            </Link>
+
+          <nav className="nav">
+            <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+              <MessageSquare size={17} /> <span>Chat</span>
+            </NavLink>
+            <NavLink to="/upload" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+              <Upload size={17} /> <span>Documents</span>
+            </NavLink>
           </nav>
 
           <button className="btn btn-outline" onClick={() => setToken(null)}>
-            <LogOut size={18} /> Logout
+            <LogOut size={16} /> <span>Logout</span>
           </button>
         </aside>
 
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<Dashboard token={token} />} />
+            <Route path="/" element={<Dashboard token={token} view="chat" />} />
             <Route path="/upload" element={<Dashboard token={token} view="upload" />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

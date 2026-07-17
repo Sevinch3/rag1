@@ -47,18 +47,18 @@ export default function ChatInterface({ token }) {
       const res = await axios.post(`${API_URL}/ask`, { question: userMsg, filters: {} }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        role: 'ai', 
+
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        role: 'ai',
         content: res.data.answer,
-        context: res.data.context 
+        context: res.data.context
       }]);
     } catch (err) {
       console.error(err);
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        role: 'ai', 
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        role: 'ai',
         content: 'Sorry, I encountered an error. Please try again.',
         error: true
       }]);
@@ -71,37 +71,37 @@ export default function ChatInterface({ token }) {
     if (!text.includes('✅ Correct Answer') && !text.includes('**Correct Answer**')) {
       return <p style={{ whiteSpace: 'pre-wrap' }}>{text}</p>;
     }
-    
+
     // Custom renderer for structured IELTS response
     const sections = text.split('\n\n');
     return sections.map((sec, idx) => {
       if (sec.includes('Correct Answer')) {
-        return <div key={idx} className="ai-section" style={{ borderLeftColor: 'var(--success)' }}>
-          <h4 style={{ color: 'var(--success)' }}>✅ Correct Answer</h4>
+        return <div key={idx} className="ai-section ai-section--correct">
+          <h4>✅ Correct Answer</h4>
           <p>{sec.replace(/.*?Correct Answer.*?:/i, '').trim()}</p>
         </div>;
       }
       if (sec.includes('Evidence')) {
-        return <div key={idx} className="ai-section" style={{ borderLeftColor: 'var(--primary)' }}>
-          <h4 style={{ color: 'var(--primary)' }}>📖 Evidence</h4>
-          <p style={{ fontStyle: 'italic' }}>"{sec.replace(/.*?Evidence.*?:/i, '').replace(/["*]/g, '').trim()}"</p>
+        return <div key={idx} className="ai-section ai-section--evidence">
+          <h4>📖 Evidence</h4>
+          <blockquote>&ldquo;{sec.replace(/.*?Evidence.*?:/i, '').replace(/["*]/g, '').trim()}&rdquo;</blockquote>
         </div>;
       }
       if (sec.includes('Explanation')) {
-        return <div key={idx} className="ai-section" style={{ borderLeftColor: 'var(--warning)' }}>
-          <h4 style={{ color: 'var(--warning)' }}>💡 Explanation</h4>
+        return <div key={idx} className="ai-section ai-section--explanation">
+          <h4>💡 Explanation</h4>
           <p>{sec.replace(/.*?Explanation.*?:/i, '').trim()}</p>
         </div>;
       }
       if (sec.includes('Incorrect Option') || sec.includes('Why Other Options')) {
-        return <div key={idx} className="ai-section" style={{ borderLeftColor: 'var(--danger)' }}>
-          <h4 style={{ color: 'var(--danger)' }}>❌ Incorrect Options</h4>
+        return <div key={idx} className="ai-section ai-section--incorrect">
+          <h4>❌ Incorrect Options</h4>
           <p style={{ whiteSpace: 'pre-wrap' }}>{sec.replace(/.*?Incorrect Option.*?:/i, '').replace(/.*?Why Other Options.*?:/i, '').trim()}</p>
         </div>;
       }
       if (sec.includes('Question Type')) {
-        return <div key={idx} style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          <strong>Question Type:</strong> {sec.replace(/.*?Question Type.*?:/i, '').trim()}
+        return <div key={idx} className="qtype-tag">
+          <span>Question Type:</span> <strong>{sec.replace(/.*?Question Type.*?:/i, '').trim()}</strong>
         </div>;
       }
       if (sec.trim()) {
@@ -113,45 +113,43 @@ export default function ChatInterface({ token }) {
 
   return (
     <>
-      <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Bot size={24} color="var(--primary)" /> IELTS Assistant
-        </h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+      <div className="pane-header">
+        <h3><Bot size={22} color="var(--primary)" /> IELTS Assistant</h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', marginTop: '0.25rem' }}>
           Ask questions based on your uploaded reading passages.
         </p>
       </div>
 
       <div className="chat-container">
         {messages.length === 0 && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <MessageSquare size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+          <div className="chat-empty">
+            <MessageSquare size={40} />
             <p>Upload a passage on the left, then ask a question here!</p>
           </div>
         )}
-        
+
         {messages.map((msg) => (
-          <div key={msg.id} className={`message ${msg.role}`} style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ flexShrink: 0, marginTop: '0.2rem' }}>
-              {msg.role === 'user' ? <User size={20} /> : <Bot size={20} color="var(--primary)" />}
+          <div key={msg.id} className={`message ${msg.role}${msg.error ? ' error' : ''}`}>
+            <div className="message-icon">
+              {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="message-bubble">
               {msg.role === 'user' ? (
                 <p>{msg.content}</p>
               ) : msg.error ? (
-                <div style={{ color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <AlertCircle size={18} /> {msg.content}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <AlertCircle size={17} /> {msg.content}
                 </div>
               ) : (
-                <div style={{ lineHeight: 1.6 }}>{formatAIResponse(msg.content)}</div>
+                <div>{formatAIResponse(msg.content)}</div>
               )}
-              
+
               {/* Context References */}
               {msg.context && msg.context.length > 0 && (
-                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  <strong>Sources used: </strong>
+                <div className="sources">
+                  <strong>Sources: </strong>
                   {msg.context.map((c, i) => (
-                    <span key={i} title={c.text} style={{ cursor: 'help', textDecoration: 'underline' }}>
+                    <span key={i} className="source-tag" title={c.text}>
                       [{c.metadata?.book || 'Passage'} T{c.metadata?.test_number || '?'} P{c.metadata?.passage_number || '?'}]
                       {i < msg.context.length - 1 ? ', ' : ''}
                     </span>
@@ -163,31 +161,31 @@ export default function ChatInterface({ token }) {
         ))}
         {loading && (
           <div className="message ai">
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'var(--text-muted)' }}>
-              <div className="typing-dot" style={{ animation: 'bounce 1.4s infinite ease-in-out both' }}>●</div>
-              <div className="typing-dot" style={{ animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.2s' }}>●</div>
-              <div className="typing-dot" style={{ animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.4s' }}>●</div>
+            <div className="message-icon"><Bot size={16} /></div>
+            <div className="message-bubble">
+              <div className="typing-indicator">
+                <div className="typing-dot" />
+                <div className="typing-dot" />
+                <div className="typing-dot" />
+              </div>
             </div>
           </div>
         )}
         <div ref={chatEndRef} />
       </div>
 
-      <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border)' }}>
-        <form onSubmit={handleSend} style={{ display: 'flex', gap: '0.5rem' }}>
-          <input 
-            type="text" 
-            placeholder="E.g. Is it True, False, or Not Given that...?" 
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            disabled={loading}
-            style={{ borderRadius: '24px', paddingLeft: '1.5rem' }}
-          />
-          <button type="submit" className="btn" disabled={!input.trim() || loading} style={{ borderRadius: '24px', width: '48px', height: '48px', padding: 0 }}>
-            <Send size={20} />
-          </button>
-        </form>
-      </div>
+      <form onSubmit={handleSend} className="chat-form">
+        <input
+          type="text"
+          placeholder="E.g. Is it True, False, or Not Given that...?"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          disabled={loading}
+        />
+        <button type="submit" className="btn" disabled={!input.trim() || loading}>
+          <Send size={18} />
+        </button>
+      </form>
     </>
   );
 }

@@ -4,15 +4,20 @@ import DocumentUpload from '../components/DocumentUpload';
 
 export default function Dashboard({ token, view }) {
   return (
-    <div className="split-pane">
+    <div className={`split-pane ${view === 'upload' ? 'show-documents' : 'show-chat'}`}>
       {/* Left Pane: Document Upload & List */}
-      <div className="pane glass" style={{ padding: '1.5rem', overflowY: 'auto' }}>
-        <h3 style={{ marginBottom: '1.5rem' }}>Reading Passages</h3>
-        <DocumentUpload token={token} />
+      <div className="pane documents-pane">
+        <div className="pane-header">
+          <span className="eyebrow">Collection</span>
+          <h3>Reading Passages</h3>
+        </div>
+        <div className="pane-body">
+          <DocumentUpload token={token} />
+        </div>
       </div>
 
       {/* Right Pane: Chat Interface */}
-      <div className="pane glass" style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className="pane chat-pane">
         <ChatInterface token={token} />
       </div>
     </div>
